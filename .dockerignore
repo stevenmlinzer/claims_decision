@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+.venv
+__pycache__
+data
+uploads
+*.pem
+*.key
+*.dump
+*.backup

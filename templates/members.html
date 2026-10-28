@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Members and Policies</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f3f6fa;
+      color: #182438;
+      margin: 0;
+    }
+    main { max-width: 1100px; margin: auto; padding: 24px; }
+    article {
+      background: white;
+      padding: 24px;
+      margin: 20px 0;
+      border: 1px solid #d8e0ea;
+      border-radius: 12px;
+    }
+    .scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    a { color: #1756a9; }
+    nav { display: flex; gap: 24px; padding: 20px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <a href="/">Home</a>
+  <h1>Members and Policies</h1>
+
+  {% for member in members %}
+  <article>
+    <h2>{{ member.first_name }} {{ member.last_name }}</h2>
+    <p>Member #{{ member.id }}</p>
+    <p>
+      {{ member.address }}, {{ member.city }}, {{ member.state }}
+      {{ member.zip if member.zip is not none else "" }}
+    </p>
+
+    {% for policy in policies_by_member.get(member.id, []) %}
+    <h3>
+      Policy #{{ policy.id }} —
+      {{ policy.car_year if policy.car_year is not none else "" }}
+      {{ policy.car_make or "" }} {{ policy.car_model or "" }}
+    </h3>
+    <p>
+      Effective:
+      {{ policy.start_date.strftime("%Y-%m-%d") if policy.start_date else "Unknown" }}
+      through
+      {{ policy.end_date.strftime("%Y-%m-%d") if policy.end_date else "Unknown" }}
+    </p>
+
+    <details>
+      <summary>View policy details</summary>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">Field</th><th scope="col">Value</th></tr>
+          </thead>
+          <tbody>
+            {% for field, value in policy.items() %}
+            <tr>
+              <th scope="row">{{ field.replace("_", " ").capitalize() }}</th>
+              <td>{{ value if value is not none else "—" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+    {% else %}
+    <p>No policies recorded for this member.</p>
+    {% endfor %}
+  </article>
+  {% else %}
+  <p>No members found on this page.</p>
+  {% endfor %}
+
+  <nav aria-label="Pagination">
+    {% if page > 1 %}
+    <a href="/members?page={{ page - 1 }}">Previous</a>
+    {% endif %}
+    <span>Page {{ page }}</span>
+    {% if has_next %}
+    <a href="/members?page={{ page + 1 }}">Next</a>
+    {% endif %}
+  </nav>
+</main>
+</body>
+</html>
