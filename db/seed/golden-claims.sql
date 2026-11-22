@@ -16,7 +16,8 @@ DECLARE
     incident_at TIMESTAMP;
     existing_count INT;
 BEGIN
-    SELECT count(*) INTO existing_count FROM test_fixtures.golden_claims;
+    SELECT count(*) INTO existing_count FROM test_fixtures.golden_claims
+    WHERE scenario IN ('member_collision', 'member_weather', 'conflicting_accounts', 'unmatched_claimant', 'missing_birthday');
     IF existing_count = 5 THEN
         RAISE NOTICE 'Golden claims already loaded; no changes made.';
         RETURN;

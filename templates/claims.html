@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Claims backlog</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          16px system-ui,
+          sans-serif;
+        color: #23343d;
+        background: #f3f6f7;
+      }
+      a {
+        color: inherit;
+      }
+      aside {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: 220px;
+        background: #152f38;
+        color: #d5e4e2;
+        padding: 30px 20px;
+      }
+      .brand {
+        font-size: 22px;
+        font-weight: 750;
+        color: white;
+      }
+      .brand span {
+        background: #a9d8c3;
+        color: #1a4739;
+        border-radius: 9px;
+        padding: 5px 9px;
+        margin-right: 8px;
+      }
+      .nav {
+        display: block;
+        text-decoration: none;
+        padding: 13px;
+        margin-top: 15px;
+        border-radius: 7px;
+        color: #b8cdcb;
+      }
+      .nav.active {
+        background: #2a4a50;
+        color: white;
+      }
+      main {
+        margin-left: 220px;
+      }
+      .top {
+        background: white;
+        border-bottom: 1px solid #e0e8e7;
+        padding: 24px 40px;
+        color: #6b7e83;
+        font-size: 14px;
+      }
+      .content {
+        padding: 36px 40px;
+        max-width: 1500px;
+        margin: auto;
+      }
+      .eyebrow {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #4b8b72;
+        font-weight: 700;
+      }
+      h1 {
+        font-size: 30px;
+        margin: 6px 0;
+      }
+      p.sub {
+        color: #71838a;
+        margin: 0 0 28px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr);
+        gap: 20px;
+      }
+      .panel {
+        background: white;
+        border: 1px solid #e0e8e7;
+        border-radius: 12px;
+        overflow: hidden;
+        min-width: 0;
+      }
+      .panelhead {
+        padding: 22px;
+        border-bottom: 1px solid #eaf0ef;
+      }
+      .panelhead h2 {
+        font-size: 18px;
+        margin: 0 0 5px;
+      }
+      .muted {
+        color: #71838a;
+        font-size: 13px;
+      }
+      .search {
+        display: flex;
+        gap: 8px;
+        padding: 18px 22px;
+      }
+      input {
+        min-width: 0;
+        flex: 1;
+        border: 1px solid #d8e2e0;
+        padding: 10px;
+        border-radius: 7px;
+        font: inherit;
+      }
+      button {
+        background: #246f58;
+        color: white;
+        border: 0;
+        border-radius: 7px;
+        padding: 10px 15px;
+        font: inherit;
+        cursor: pointer;
+      }
+      .item {
+        display: block;
+        text-decoration: none;
+        padding: 16px 22px;
+        border-top: 1px solid #edf1f1;
+      }
+      .item.active,
+      .item:hover {
+        background: #f0f8f4;
+      }
+      .item.active {
+        box-shadow: inset 3px 0 #4c9a76;
+      }
+      .item strong {
+        font-size: 14px;
+      }
+      .item .muted {
+        display: block;
+        margin-top: 5px;
+      }
+      .detail {
+        padding: 22px;
+      }
+      .detail h3 {
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+      .section {
+        border-top: 1px solid #eaf0ef;
+        margin-top: 20px;
+        padding-top: 18px;
+      }
+      .section h4 {
+        color: #748890;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.8px;
+        margin: 0 0 14px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .field small {
+        display: block;
+        color: #829197;
+        margin-bottom: 5px;
+      }
+      .field {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+      .card {
+        background: #f6f9f8;
+        border: 1px solid #e4ece9;
+        border-radius: 8px;
+        padding: 13px;
+        margin: 10px 0;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .notice {
+        padding: 14px;
+        background: #eef7f1;
+        border-radius: 8px;
+        color: #32694f;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .pager {
+        padding: 18px 22px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        font-size: 14px;
+      }
+      .empty {
+        padding: 22px;
+        color: #71838a;
+      }
+      .link {
+        color: #246f58;
+      }
+      @media (max-width: 800px) {
+        aside {
+          position: static;
+          width: auto;
+          padding: 14px 20px;
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .nav {
+          margin: 0;
+          padding: 8px;
+        }
+        main {
+          margin: 0;
+        }
+        .top {
+          padding: 18px;
+        }
+        .content {
+          padding: 24px 18px;
+        }
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <aside>
+      <div class="brand">
+        <span>✳</span>
+        Claimdesk
+      </div>
+      <a class="nav active" href="/claims">Claims backlog</a>
+      <a class="nav" href="/members">Members &amp; policies</a>
+      <a class="nav" href="/">Home</a>
+    </aside>
+    <main>
+      <div class="top">
+        Workspace &nbsp; / &nbsp;
+        <strong>Claims backlog</strong>
+      </div>
+      <div class="content">
+        <div class="eyebrow">Claims operations</div>
+        <h1>Claims backlog</h1>
+        <p class="sub">
+          Review claim details, associated records and available coverage
+          information.
+        </p>
+        <div class="layout">
+          <section class="panel">
+            <div class="panelhead">
+              <h2>Claims queue</h2>
+              <span class="muted">
+                {{ total }} matching claim{{ '' if total == 1 else 's' }}
+              </span>
+            </div>
+            <form class="search" action="/claims">
+              <input
+                name="q"
+                value="{{ q }}"
+                placeholder="Search claim ID or claimant"
+                aria-label="Search claims"
+              />
+              <button type="submit">Search</button>
+            </form>
+            {% for claim in claims %}
+            <a
+              class="item {% if selected and selected.id == claim.id %}active{% endif %}"
+              href="{{ request.url_for('claims_page').include_query_params(claim_id=claim.id, q=q, page=page) }}"
+            >
+              <strong>Claim #{{ claim.id }}</strong>
+              <span class="muted">
+                {{ claim.claimant_first_name }} {{ claim.claimant_last_name }} ·
+                {{ claim.incident_city }}, {{ claim.incident_state }}
+              </span>
+              <span class="muted">
+                {{ claim.incident_datetime.strftime('%b %d, %Y') if
+                claim.incident_datetime else 'Incident date unavailable' }}{% if
+                claim.total_claim_amt is not none %} · ${{
+                '%.2f'|format(claim.total_claim_amt) }}{% endif %}
+              </span>
+            </a>
+            {% else %}
+            <div class="empty">No claims found.</div>
+            {% endfor %}
+            <nav class="pager" aria-label="Claims pages">
+              {% if page > 1 %}
+              <a
+                class="link"
+                href="{{ request.url_for('claims_page').include_query_params(q=q,page=page-1) }}"
+              >
+                Previous
+              </a>
+              {% endif %}
+              <span>Page {{ page }}</span>
+              {% if page * page_size < total %}
+              <a
+                class="link"
+                href="{{ request.url_for('claims_page').include_query_params(q=q,page=page+1) }}"
+              >
+                Next
+              </a>
+              {% endif %}
+            </nav>
+          </section>
+          <section class="panel">
+            <div class="panelhead">
+              <h2>Claim details</h2>
+              <span class="muted">Member, incident, damage and evidence</span>
+            </div>
+            {% if selected %}
+            <div class="detail">
+              <h3>Claim #{{ selected.id }}</h3>
+              <div class="muted">
+                {{ selected.claimant_first_name }} {{
+                selected.claimant_last_name }}
+              </div>
+              <div class="section">
+                <h4>Member verification</h4>
+                <div class="notice">
+                  {% if not selected.claimant_birthday %}Birthday is missing;
+                  membership cannot be verified.{% elif matches|length == 0 %}No
+                  member matched the claimant’s first name, last name and
+                  birthday.{% elif matches|length > 1 %}Multiple members
+                  matched; identity needs review.{% else %}One matching member
+                  found: #{{ matches[0].id }}. Verify identity before making a
+                  decision.{% endif %}
+                </div>
+              </div>
+              <div class="section">
+                <h4>Incident details</h4>
+                <div class="grid">
+                  <div class="field">
+                    <small>Date of loss</small>
+                    {{ selected.incident_datetime.strftime('%b %d, %Y %H:%M') if
+                    selected.incident_datetime else 'Unknown' }}
+                  </div>
+                  <div class="field">
+                    <small>Claim amount</small>
+                    {{ '$%.2f'|format(selected.total_claim_amt) if
+                    selected.total_claim_amt is not none else 'Not recorded' }}
+                  </div>
+                  <div class="field">
+                    <small>Incident location</small>
+                    {{ selected.incident_address }}, {{ selected.incident_city
+                    }}, {{ selected.incident_state }} {{ selected.incident_zip
+                    or '' }}
+                  </div>
+                  <div class="field">
+                    <small>Claimant</small>
+                    {{ selected.claimant_first_name }} {{
+                    selected.claimant_last_name }}
+                  </div>
+                </div>
+              </div>
+              <div class="section">
+                <h4>Member policies</h4>
+                {% if policies %}
+                <p class="muted">
+                  These policies belong to the matched member. The claim does
+                  not identify the applicable vehicle or policy.
+                </p>
+                {% for p in policies %}
+                <div class="card">
+                  <strong>
+                    Policy #{{ p.id }} · {{ p.car_year or '' }} {{ p.car_make or
+                    '' }} {{ p.car_model or '' }}
+                  </strong>
+                  <br />
+                  Dates: {{ p.start_date.strftime('%Y-%m-%d') if p.start_date
+                  else 'Unknown' }} to {{ p.end_date.strftime('%Y-%m-%d') if
+                  p.end_date else 'Unknown' }}
+                  <br />
+                  Collision deductible: {{
+                  '$%.2f'|format(p.collision_deductable_amt) if
+                  p.collision_deductable_amt is not none else 'Not recorded' }}
+                  · Comprehensive deductible: {{
+                  '$%.2f'|format(p.comprehensive_deductable_amt) if
+                  p.comprehensive_deductable_amt is not none else 'Not recorded'
+                  }}
+                </div>
+                {% endfor %}{% else %}
+                <p class="muted">
+                  No policies available for a unique member match.
+                </p>
+                {% endif %}
+              </div>
+              <div class="section">
+                <h4>Damage estimates</h4>
+                {% for d in damage %}
+                <div class="card">
+                  <strong>{{ d.damage_type }}</strong>
+                  · {{ '$%.2f'|format(d.damage_estimate) if d.damage_estimate is
+                  not none else 'Estimate not recorded' }}
+                  <br />
+                  {{ d.damage_description or 'No description' }}
+                  <br />
+                  <span class="muted">
+                    {{ d.business_name or 'Business not recorded' }}{% if
+                    d.business_address %} · {{ d.business_address }}{% endif %}
+                  </span>
+                </div>
+                {% else %}
+                <p class="muted">No damage estimates recorded.</p>
+                {% endfor %}
+              </div>
+              <div class="section">
+                <h4>Supporting documentation &amp; evidence</h4>
+                {% for e in evidence %}
+                <div class="card">
+                  <strong>{{ e.evidence_type }}</strong>
+                  {% if e.evd_relation %} · {{ e.evd_relation }}{% endif %}
+                  <br />
+                  {{ e.evidence_description or 'No description' }}{% if
+                  e.evd_full_name %}
+                  <br />
+                  <span class="muted">{{ e.evd_full_name }}</span>
+                  {% endif %}
+                </div>
+                {% else %}
+                <p class="muted">No evidence recorded.</p>
+                {% endfor %}
+              </div>
+              <div class="section">
+                <div class="notice">
+                  First-decision analysis is not connected yet. A human reviewer
+                  must assess coverage using the policy and claim evidence.
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <div class="empty">Select a claim to see its details.</div>
+            {% endif %}
+          </section>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

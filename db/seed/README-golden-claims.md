@@ -37,3 +37,39 @@ ORDER BY f.scenario;
 ```
 
 A fresh database initialized by Compose runs migrations 03 and 04 automatically, after which the seed script must still be run explicitly. PostgreSQL image initialization scripts do not rerun on an existing data volume.
+
+## Additional witness and party-account cases
+
+After the original five cases, run `db/seed/golden-witness-cases.sql` with the same `psql -v ON_ERROR_STOP=1` command pattern. It adds eight claims, each with separate claimant, plaintiff, witness and investigator evidence records, four synthetic source documents and a mechanic invoice. It is safe to rerun: registered cases are skipped. The original seed script can also be rerun after the expansion.
+
+```sh
+sudo docker compose exec -T db psql -U capstone -d capstone -v ON_ERROR_STOP=1 < db/seed/golden-witness-cases.sql
+```
+
+Read `witness-evaluation-guide.md` only on the evaluation side; it contains provisional evidence-handling expectations, not final coverage labels. This additional script also adds separate claimant and plaintiff accounts to the original five cases.
+
+## Identity and policy cases
+
+After `golden-claims.sql`, run `db/seed/golden-coverage-cases.sql` to add four fictional identity, vehicle and policy cases. They use reserved negative fixture member and policy IDs and fail rather than overwrite an existing record with one of those IDs. The script skips already registered scenarios on rerun. See `coverage-evaluation-guide.md` for evaluator-only expectations.
+
+```sh
+sudo docker compose exec -T db psql -U capstone -d capstone -v ON_ERROR_STOP=1 < db/seed/golden-coverage-cases.sql
+```
+
+The incident vehicle/policy relationship appears in narrative evidence because the schema does not yet provide a direct claim-to-vehicle or claim-to-policy link.
+
+## Vehicle value, hit-and-run and conflicting fault cases
+
+The current `db/init/01-schema.sql` allows unknown plaintiff details when creating a fresh database. For an existing database, ensure the five plaintiff name and address fields are nullable before running the loss seed. After `golden-claims.sql`, run `db/seed/golden-loss-cases.sql`. It adds three fictional claims, uses reserved negative fixture member and policy IDs, and skips registered cases on rerun. The hit-and-run claim records the other party as unknown using NULL values and has no invented plaintiff statement. See `loss-evaluation-guide.md` for evaluator-only expectations.
+
+```sh
+sudo docker compose exec -T db psql -U capstone -d capstone -v ON_ERROR_STOP=1 < db/seed/golden-loss-cases.sql
+```
+
+## Police-report contradictions
+
+After `golden-claims.sql`, run `db/seed/golden-police-cases.sql` to add two fictional cases in which a police report contradicts, respectively, the claimant and the plaintiff. The scenarios use reserved negative fixture member and policy IDs and skip already registered scenarios on rerun. See `police-evaluation-guide.md` for evaluator-only expectations.
+
+```sh
+sudo docker compose exec -T db psql -U capstone -d capstone -v ON_ERROR_STOP=1 < db/seed/golden-police-cases.sql
+```

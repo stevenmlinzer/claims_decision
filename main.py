@@ -41,6 +41,7 @@ def home():
         <h1>Claims First Decision Powered by AI</h1>
         <p>FastAPI is running inside Docker on AWS.
            This is the starting point for your LLM and AI-agent application.</p>
+        <p><a href="/claims">View Claims Backlog</a></p>
         <p><a href="/members">View Members and Policies →</a></p>
         <a href="/docs">Explore the API →</a>
       </main>
@@ -110,3 +111,51 @@ def members_page(
             "has_next": has_next,
         },
     )
+
+
+@app.get('/claims', response_class=HTMLResponse)
+def claims_page(request: Request, q: str = Query(default='', max_length=100),
+                claim_id: int | None = Query(default=None, ge=1),
+                page: int = Query(default=1, ge=1)):
+    """Read-only claims worklist. No coverage decision is made here."""
+    page_size = 25
+    search = q.strip()
+    try:
+        with psycopg.connect(connect_timeout=5, row_factory=dict_row,
+                             options='-c default_transaction_read_only=on') as conn:
+            # Escape wildcard characters so a search is interpreted literally.
+            pattern = '%' + search.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_') + '%'
+            where = """WHERE (%s = '' OR CAST(c.id AS text) ILIKE %s
+                       OR c.claimant_first_name ILIKE %s OR c.claimant_last_name ILIKE %s
+                       OR (c.claimant_first_name || ' ' || c.claimant_last_name) ILIKE %s)"""
+            params = (search, pattern, pattern, pattern, pattern)
+            total = conn.execute('SELECT count(*) AS n FROM claims.claim c ' + where, params).fetchone()['n']
+            rows = conn.execute('''SELECT c.id, c.claimant_first_name, c.claimant_last_name,
+                c.incident_datetime, c.incident_city, c.incident_state, c.total_claim_amt
+                FROM claims.claim c ''' + where + ''' ORDER BY c.incident_datetime DESC NULLS LAST, c.id DESC
+                LIMIT %s OFFSET %s''', (*params, page_size, (page - 1) * page_size)).fetchall()
+            selected = None
+            matches, policies, damage, evidence = [], [], [], []
+            if claim_id is None and rows:
+                claim_id = rows[0]['id']
+            if claim_id is not None:
+                selected = conn.execute('SELECT * FROM claims.claim WHERE id = %s', (claim_id,)).fetchone()
+                if selected:
+                    matches = conn.execute('''SELECT id, first_name, last_name FROM claims.member
+                        WHERE lower(trim(first_name)) = lower(trim(%s))
+                          AND lower(trim(last_name)) = lower(trim(%s)) AND birthday = %s
+                        ORDER BY id LIMIT 2''', (selected['claimant_first_name'], selected['claimant_last_name'], selected['claimant_birthday'])).fetchall()
+                    if len(matches) == 1:
+                        policies = conn.execute('''SELECT id, start_date, end_date, car_year, car_make, car_model,
+                            collision_deductable_amt, comprehensive_deductable_amt, liab_body_amt, liab_prop_amt
+                            FROM claims.mem_policy WHERE mem_id = %s ORDER BY id''', (matches[0]['id'],)).fetchall()
+                    damage = conn.execute('SELECT * FROM claims.claim_damage WHERE claim_id = %s ORDER BY id', (claim_id,)).fetchall()
+                    evidence = conn.execute('SELECT * FROM claims.claim_evidence WHERE claim_id = %s ORDER BY id', (claim_id,)).fetchall()
+    except psycopg.Error:
+        logger.exception('Unable to load claims backlog')
+        raise HTTPException(status_code=503, detail='Database temporarily unavailable') from None
+    return templates.TemplateResponse(request=request, name='claims.html', context={
+        'claims': rows, 'selected': selected, 'matches': matches, 'policies': policies,
+        'damage': damage, 'evidence': evidence, 'q': search, 'page': page,
+        'total': total, 'page_size': page_size,
+    })

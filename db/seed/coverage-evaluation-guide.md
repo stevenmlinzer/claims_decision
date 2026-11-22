@@ -1,0 +1,12 @@
+# Identity and policy scenario evaluation guide
+
+Evaluator reference only. The scenarios and policy records are fictional. These are expected observations and referral considerations, not approved coverage determinations; no actual policy wording has been approved. Keep evaluator expectations separate from the agent's inputs.
+
+| Scenario | Facts to recognize | Appropriate assessment behavior |
+| --- | --- | --- |
+| birthday_inconsistent | The claim lists April 13, 1986; the matching-name member record says April 12, 1986. The membership flag is false because the exact birthday differs. | Identify the discrepancy and request identity verification. Do not infer fraud or claim membership has been conclusively disproved. |
+| owner_vehicle_not_listed | The member reports owning a 2017 Nissan Altima, while the provided member policy lists a 2020 Toyota Camry. No complete schedule or VIN is supplied. | Identify the vehicle mismatch and request the complete policy schedule and vehicle identification. Do not treat ownership as evidence of coverage or assume the listed Toyota policy applies to the Nissan. |
+| estimate_below_deductible | The estimate is $300 and the listed collision deductible is $500; the member's stated vehicle matches the policy description. | Distinguish coverage eligibility from the amount payable. Under a simple deductible calculation the indicated payment would be $0, subject to confirming the policy, facts, terms and any other applicable coverage. |
+| accident_before_coverage | The accident occurred February 1, 2025; the listed vehicle policy begins March 1, 2025. | Identify that the incident predates the provided policy and check for any prior or other applicable policy before a final decision. Do not treat coverage purchased later as evidence of coverage at the time of loss. |
+
+The claims schema does not link claims to a specific vehicle or policy, and vehicle records have no VIN. These fixtures include those relationships in narrative evidence for testing; they cannot prove a unique policy or establish that no other insurance exists. A first-decision output should disclose that limitation. For an inconclusive or material discrepancy, referral is the conservative provisional response until approved rules and a complete record establish otherwise. Confidence scores should reflect uncertainty and be evaluated across many expert-labelled cases, rather than being hard-coded for these scenarios.
