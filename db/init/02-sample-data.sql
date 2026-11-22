@@ -13,7 +13,7 @@ WITH (
 COPY claims.mem_policy (
     id,car_make,car_model,car_year,blue_book_amt,mem_id
 )
-FROM '/seed/Policy.csv'
+FROM '/seed/Cars.csv'
 WITH (
     FORMAT csv,
     HEADER true,
